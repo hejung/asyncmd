@@ -227,6 +227,8 @@ class Test_InPartsTrajectoryPropagator:
         #    mda version 2.2.0 and fasteners does not remove lock files)
         # - filelock removes lockfiles on win with filelock version >= 3.25.1
         # - filelock removes lockfiles on unix with filelock version >= 3.20.4
+        #   and then stopped removing them again with version 3.29.5,
+        #   see: https://github.com/tox-dev/filelock/pull/577
         try:
             import filelock
         except ImportError:
@@ -237,9 +239,14 @@ class Test_InPartsTrajectoryPropagator:
         else:
             # lockfile used instead of fasteners
             if os.name == "posix":
-                files_per_traj = (
-                    2 if Version(filelock.__version__) >= Version("3.20.4")
-                    else 3)
+                files_per_traj = 3
+                if (
+                    Version("3.29.5")
+                    > Version(filelock.__version__)
+                    >= Version("3.20.4")
+                ):
+                    # we are in the version range that removes the lockfiles
+                    files_per_traj -= 1
             elif os.name == "nt":
                 files_per_traj = (
                     2 if Version(filelock.__version__) >= Version("3.25.1")
