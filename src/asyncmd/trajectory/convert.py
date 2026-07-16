@@ -589,6 +589,9 @@ class RandomVelocitiesFrameExtractor(FrameExtractor):
         """
         Draw random Maxwell-Boltzmann velocities for extracted frame.
 
+        Remove the total linear momentum of the system after generating velocities
+        and assign zero velocity to atoms with mass equal to zero.
+
         Parameters
         ----------
         universe : MDAnalysis.core.universe.Universe
@@ -596,6 +599,7 @@ class RandomVelocitiesFrameExtractor(FrameExtractor):
         ts : MDAnalysis.coordinates.base.Timestep
             The mdanalysis timestep of the frame to extract.
         """
+        # Note on units:
         # m is in units of g / mol
         # v should be in units of \AA / ps = 100 m / s
         # which means m [10**-3 kg / mol] v**2 [10000 (m/s)**2]
@@ -603,11 +607,25 @@ class RandomVelocitiesFrameExtractor(FrameExtractor):
         # so we use R = N_A * k_B [J / (mol * K) = kg m**2 / (s**2 * mol * K)]
         # and add in a factor 10 to get 1/σ**2 = m / (k_B * T)
         # in the correct units
+        # Note also: We take care of virtual sites (with mass equal to zero) and
+        #            remove the total linear momentum of the system
+        zero_mass_mask = (universe.atoms.masses == 0.)
         scale = np.empty((ts.n_atoms, 3), dtype=np.float64)
-        s1d = np.sqrt((self.T * constants.R * 0.1)
-                      / universe.atoms.masses
-                      )
+        # set the masses that are zero to one when calculating the scale of the
+        # velocity distribution (to avoid division by zero)
+        masses_ = universe.atoms.masses.copy()
+        masses_[zero_mass_mask] = 1.
         # sigma is the same for all 3 cartesian dimensions
+        s1d = np.sqrt((self.T * constants.R * 0.1) / masses_)
         for i in range(3):
             scale[:, i] = s1d
-        ts.velocities = self._rng.normal(loc=0, scale=scale)
+        v = self._rng.normal(loc=0, scale=scale)
+        # set velocities of virtual sites to zero (zero_mass_mask is 1d)
+        v[zero_mass_mask, :] = 0.
+        # Remove linear center-of-mass motion
+        p_com = np.sum(v * universe.atoms.masses[:, np.newaxis], axis=0)
+        v_com = p_com / np.sum(universe.atoms.masses)
+        # only subtract center-of-mass velocity for real atoms,
+        # the virtual sites should stay at zero velocity
+        v[np.logical_not(zero_mass_mask)] -= v_com
+        ts.velocities = v

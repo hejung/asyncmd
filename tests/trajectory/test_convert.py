@@ -472,6 +472,8 @@ class Test_RandomVelocitiesFrameExtractor(TBase_FrameExtractors):
         assert np.allclose(all_pos_original,
                            all_atoms_extracted.positions,
                            )
+        # check that all velocities are finite
+        assert np.all(np.isfinite(all_atoms_extracted.velocities))
         # TODO: check for normal distribution of veloctities?!
         #       we could check for normality with scipy.stats.normaltest but
         #       that would only provide evidence against but not for the null
