@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "asyncmd"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = ["aiofiles",
                 "mdanalysis",
                 "numpy",
@@ -49,6 +49,7 @@ dev = ["asyncmd[docs,tests-all]",
 Documentation = "https://asyncmd.readthedocs.io/en/latest/"
 Repository = "https://github.com/bio-phys/asyncmd.git"
 Issues = "https://github.com/bio-phys/asyncmd/issues"
+Changelog = "https://github.com/bio-phys/asyncmd/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["src"]

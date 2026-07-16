@@ -82,10 +82,8 @@ html_theme_options = {
         {
             "name": "PyPI",
             "url": "https://pypi.org/project/asyncmd/",
-            "icon": "https://img.shields.io/pypi/dm/asyncmd?label=pypi%20downloads",
-            # keep the replacement icon for PyPi link, but commented out
-            # (for the next time download stats are broken)
-            #"icon": "https://img.shields.io/pypi/v/asyncmd",
+            # use PyPI version badge as image for the PyPI link
+            "icon": "https://img.shields.io/pypi/v/asyncmd",
             "type": "url",
         },
         {
