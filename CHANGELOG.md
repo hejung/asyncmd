@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- take into account virtual sites/ dummy particles (atoms with mass equal to zero) when generating random velocities using the `RandomVelocitiesFrameExtractor`, also remove total linear momentum after generation
+
 ## [0.5.0] - 2026-04-09
 
 ### Added
